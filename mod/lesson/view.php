@@ -41,6 +41,8 @@ $lesson = new lesson($DB->get_record('lesson', array('id' => $cm->instance), '*'
 
 require_login($course, false, $cm);
 
+track_lesson_start($lesson->id, $lesson->course, 1, $USER->id);
+
 if ($backtocourse) {
     redirect(new moodle_url('/course/view.php', array('id'=>$course->id)));
 }
@@ -55,6 +57,7 @@ if ($pageid !== null) {
 $PAGE->set_url($url);
 $PAGE->force_settings_menu();
 $PAGE->add_body_class('limitedwidth');
+
 
 $context = $lesson->context;
 $canmanage = $lesson->can_manage();
@@ -117,6 +120,7 @@ if (empty($pageid)) {
             }
         }
     }
+
 
     // if no pageid given see if the lesson has been started
     $retries = $lesson->count_user_retries($USER->id);
@@ -252,6 +256,7 @@ if ($pageid != LESSON_EOL) {
     if ($lesson->displayleft) {
         echo '<a name="maincontent" id="maincontent" title="' . get_string('anchortitle', 'lesson') . '"></a>';
     }
+    echo $lessonoutput->render_timer();
     echo $lessoncontent;
     echo $lessonoutput->progress_bar($lesson);
     echo $lessonoutput->footer();

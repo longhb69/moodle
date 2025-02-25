@@ -516,6 +516,13 @@ class mod_lesson_renderer extends plugin_renderer_base {
         return $this->output->box($printprogress, 'progress_bar');
     }
 
+    public function render_timer() {
+        global $PAGE;
+        $PAGE->requires->js(new moodle_url('/mod/lesson/custom_timer.js'));
+        $PAGE->requires->jquery();
+        return html_writer::tag('div', '0:00:00', ['id' => 'lesson-timer', 'class' => 'lesson-timer']);
+    }
+
     /**
      * Returns HTML to show the start of a slideshow
      * @param lesson $lesson
@@ -639,6 +646,8 @@ class mod_lesson_renderer extends plugin_renderer_base {
         }
         return $output;
     }
+
+
 
     /**
      * Render the override action menu.

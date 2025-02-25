@@ -4834,23 +4834,3 @@ function course_section_view(context_course $context, int $sectionid) {
 
     user_accesstime_log($context->instanceid);
 }
-
-
-function render_absolute_text() {
-    $content = '';
-
-    $content .= html_writer::tag('div', 
-        html_writer::tag('div', '00:00:00', 
-        [
-            'id' => 'm-countdown',
-            'style' => 'background: #333; color: white; padding: 5px; border-radius: 4px;'
-        ]), 
-        [
-            'id' => 'absolute-box',
-            'style' => 'position: absolute; top: 50px; left: 100px; background: #333; color: white;
-                        padding: 15px; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0,0,0,0.5);'
-        ]
-    );
-
-    return $content;
-}

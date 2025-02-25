@@ -1751,3 +1751,56 @@ function mod_lesson_core_calendar_get_event_action_string(string $eventtype): st
 
     return get_string($identifier, 'lesson', $modulename);
 }
+
+function track_lesson_start($lessonid, $courseid, $classid, $userid) {
+    global $DB;
+
+    $record = $DB->get_record('lesson_time_tracking', [
+        'userid' => $userid,
+        'lessonid' => $lessonid,
+        'logout' => null
+    ]);
+
+    if(!$record) {
+        $newRecord = new stdClass();
+        $newRecord->userid = $userid;
+        $newRecord->lessonid = $lessonid;
+        $newRecord->courseid = $courseid;
+        $newRecord->classid = $classid;
+        $newRecord->login = time(); // Current timestamp
+        $newRecord->logout = null;
+        $newRecord->timespent = 0;
+
+        $DB -> insert_record('lesson_time_tracking', $newRecord);
+    }
+}
+
+function track_lesson_end($lessonid, $userid, $logout) {
+    global $DB;
+
+    $record = $DB->get_record('lesson_time_tracking', [
+        'userid' => $userid,
+        'lessonid' => $lessonid,
+        'logout' => null
+    ]);
+
+    if(!$record) {
+        error_log("No active lesson record found for lessonid: $lessonid, userid: $userid");
+        return false;
+    }
+
+    // Update the record
+    $record->logout = $logout; 
+    $record->timespent = $record->logout - $record->login;
+
+    $success = $DB->update_record('lesson_time_tracking', $record);
+
+    if (!$success) {
+        error_log("Database update failed for lessonid: $lessonid, userid: $userid");
+        return false;
+    }
+
+    error_log("Lesson end successfully tracked for lessonid: $lessonid, userid: $userid");
+    return true;
+
+}

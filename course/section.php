@@ -224,17 +224,10 @@ echo $renderer->container_end();
 // Trigger section viewed event.
 course_section_view($context, $sectionid);
 
-echo render_absolute_text();
-
-
 // Load the view JS module if completion tracking is enabled for this course.
 $completion = new completion_info($course);
 if ($completion->is_enabled()) {
     $PAGE->requires->js_call_amd('core_course/view', 'init');
 }
-
-$PAGE->requires->js(new moodle_url('/local/time_track/js/tracker.js'));
-
-
 
 echo $OUTPUT->footer();

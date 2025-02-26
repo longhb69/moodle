@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let n = 5;
+    let n = 10;
     const timerElement = document.getElementById("lesson-timer");
 
     function updateTimerDisplay(seconds) {
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (n <= 0) {
                 clearInterval(countdown);
                 const logoutTime = Math.floor(Date.now() / 1000);
-                test(logoutTime);
+                handleExit(logoutTime);
                 return;
             }
             n--;
@@ -29,7 +29,7 @@ function getIdFromUrl() {
     return urlParams.get('id'); 
 }
 
-function test(logoutTime) {
+function handleExit(logoutTime) {
     const id = getIdFromUrl();
      console.log(logoutTime)
     console.log(id)

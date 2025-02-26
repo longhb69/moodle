@@ -1757,22 +1757,23 @@ function track_lesson_start($lessonid, $courseid, $classid, $userid) {
 
     $record = $DB->get_record('lesson_time_tracking', [
         'userid' => $userid,
-        'lessonid' => $lessonid,
         'logout' => null
     ]);
 
-    if(!$record) {
-        $newRecord = new stdClass();
-        $newRecord->userid = $userid;
-        $newRecord->lessonid = $lessonid;
-        $newRecord->courseid = $courseid;
-        $newRecord->classid = $classid;
-        $newRecord->login = time(); // Current timestamp
-        $newRecord->logout = null;
-        $newRecord->timespent = 0;
+    $newRecord = new stdClass();
+    $newRecord->userid = $userid;
+    $newRecord->lessonid = $lessonid;
+    $newRecord->courseid = $courseid;
+    $newRecord->classid = $classid;
+    $newRecord->login = time(); // Current timestamp
+    $newRecord->logout = null;
+    $newRecord->timespent = 0;
 
-        $DB -> insert_record('lesson_time_tracking', $newRecord);
+    if($record) {
+        $DB->delete_records('lesson_time_tracking', ['logout' => null]);
     }
+
+    $DB -> insert_record('lesson_time_tracking', $newRecord);
 }
 
 function track_lesson_end($lessonid, $userid, $logout) {
@@ -1791,7 +1792,8 @@ function track_lesson_end($lessonid, $userid, $logout) {
 
     // Update the record
     $record->logout = $logout; 
-    $record->timespent = $record->logout - $record->login;
+    
+    $record->timespent = max(0, $record->logout - $record->login);
 
     $success = $DB->update_record('lesson_time_tracking', $record);
 

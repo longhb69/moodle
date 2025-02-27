@@ -1,0 +1,35 @@
+<h1 class="text-center">Hello {{username}}</h1>
+
+<h2 class="text-center">Attendance List</h2>
+
+<table class="table table-bordered table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>User ID</th>
+            <th>Lesson ID</th>
+            <th>Login Time</th>
+            <th>Logout Time</th>
+            <th>Class ID</th>
+            <th>Course ID</th>
+            <th>Time Spent (seconds)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#attendance}}
+        <tr class="cursor-pointer">
+            <td>{{userid}}</td>
+            <td>{{lessonid}}</td>
+            <td>{{login}}</td>
+            <td>{{logout}}</td>
+            <td>{{classid}}</td>
+            <td>{{courseid}}</td>
+            <td>{{timespent}}</td>
+        </tr>
+        {{/attendance}}
+        {{^attendance}}
+        <tr>
+            <td colspan="7" class="text-center">No attendance data found.</td>
+        </tr>
+        {{/attendance}}
+    </tbody>
+</table>

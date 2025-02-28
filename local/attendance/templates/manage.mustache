@@ -2,28 +2,28 @@
 
 <h2 class="text-center">Attendance List</h2>
 
-<table class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-sm table-hover">
     <thead class="thead-dark">
         <tr>
-            <th>User ID</th>
-            <th>Lesson ID</th>
+            <th>User</th>
             <th>Login Time</th>
             <th>Logout Time</th>
-            <th>Class ID</th>
-            <th>Course ID</th>
-            <th>Time Spent (seconds)</th>
+            <th>Class</th>
+            <th>Course</th>
+            <th>Lesson</th>
+            <th class="text-end px-3">Time Spent (seconds)</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="fs-6">
         {{#attendance}}
         <tr class="cursor-pointer">
-            <td>{{userid}}</td>
-            <td>{{lessonid}}</td>
+            <td>{{username}}</td>
             <td>{{login}}</td>
             <td>{{logout}}</td>
             <td>{{classid}}</td>
-            <td>{{courseid}}</td>
-            <td>{{timespent}}</td>
+            <td>{{coursename}}</td>
+            <td>{{lessonname}}</td>
+            <td class="text-end px-3">{{timespent}}</td>
         </tr>
         {{/attendance}}
         {{^attendance}}

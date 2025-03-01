@@ -4834,3 +4834,45 @@ function course_section_view(context_course $context, int $sectionid) {
 
     user_accesstime_log($context->instanceid);
 }
+
+function render_course_progression() {
+    global $DB;
+    global $USER;
+    global $COURSE;
+
+    $userid = $USER->id;    
+    $courseid = $COURSE->id;
+
+    $ltt_sql = "SELECT userid, courseid, SUM(timespent) AS total_timespent
+                FROM {lesson_time_tracking}
+                WHERE courseid = :courseid and userid = :userid
+                GROUP BY courseid, userid";
+    
+    $ltt_sql_params = [
+        'courseid' => $courseid,
+        'userid' => $userid
+    ];
+
+    $utpd_sql = "SELECT timetocomplete FROM {course} WHERE id = :courseid";
+    $utpd_sql_params = [
+        'courseid' => $courseid,
+    ];
+
+    $ltt_record = $DB->get_record_sql($ltt_sql, $ltt_sql_params);
+    $timetocomplete = $DB->get_record_sql($utpd_sql, $utpd_sql_params)->timetocomplete;
+
+    if($ltt_record && $ltt_record->total_timespent !== null) {
+        $message = html_writer::div(
+            html_writer::div(
+                "✅ Bạn đã hoàn thành khóa học ($ltt_record->total_timespent) : khoa hoc co ($timetocomplete) phut",
+                'fw-bold fs-3 px-3 py-1 rounded text-white bg-success'
+            ),
+            'text-center rounded bg-light text-white'
+        );
+    
+        return $message;
+    } else {
+        return "No records found.";
+    }
+}
+

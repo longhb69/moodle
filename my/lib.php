@@ -331,3 +331,33 @@ class my_syspage_block_manager extends block_manager {
         $this->page->context = $origcontext;
     }
 }
+
+function display_study_time() {
+    global $DB, $USER;
+
+    require_login();
+    $userid = $USER->id;
+    $today = date('Y-d-m');
+
+    $record = $DB->get_record('user_time_per_day', ['userid' => $userid, 'date' => $today]);
+
+    if(!$record) {
+        $hours = 0;
+        $minutes = 0;
+    }
+    else {
+        $totalMinutes = $record->time;
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes  % 60;
+    }
+    $hourClass = ($hours < 12) ? 'text-success' : 'text-danger';
+    $title = html_writer::tag('strong', $hours, ['class' => "$hourClass fs-4"]) . 
+             html_writer::tag('span', ' Giờ ', ['class' => 'text-dark']) . 
+             html_writer::tag('strong', $minutes, ['class' => "$hourClass fs-4"]) . 
+             html_writer::tag('span', ' Phút', ['class' => 'text-dark']);
+
+    return html_writer::div(
+        '⏳ Thời lượng đã học hôm nay: ' . $title, 
+        'text-center text-primary mt-3 p-3 bg-light rounded shadow-sm'
+    );
+}

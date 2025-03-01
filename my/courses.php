@@ -94,13 +94,14 @@ if (!empty($coursemanagemenu)) {
 }
 
 echo $OUTPUT->header();
+echo display_study_time();
 
 if (core_userfeedback::should_display_reminder()) {
     core_userfeedback::print_reminder_block();
 }
 
-echo $OUTPUT->custom_block_region('content');
 
+echo $OUTPUT->custom_block_region('content');
 echo $OUTPUT->footer();
 
 // Trigger dashboard has been viewed event.

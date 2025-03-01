@@ -608,7 +608,7 @@ $string['youranswer'] = 'Your answer';
 $string['yourcurrentgradeis'] = 'Your current grade is {$a}';
 $string['yourcurrentgradeisoutof'] = 'Your current grade is {$a->grade} out of {$a->total}';
 $string['youshouldview'] = 'You should answer at least: {$a}';
-
+$string['custom_timelimit'] = 'Thời lượng bài học (phút)';
 // Deprecated since 4.3.
 $string['completiontimespent'] = 'Student must do this activity at least for';
 
@@ -618,3 +618,4 @@ $string['grade'] = 'Grade';
 // Deprecated since Moodle 4.5.
 $string['useroverridesdeleted'] = 'User overrides deleted';
 $string['groupoverridesdeleted'] = 'Group overrides deleted';
+

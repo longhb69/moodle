@@ -198,6 +198,13 @@ class mod_lesson_mod_form extends moodleform_mod {
         $mform->setAdvanced('timelimit', $lessonconfig->timelimit_adv);
         $mform->setDefault('timelimit', $lessonconfig->timelimit);
 
+        //custom time limit.
+        $mform->addElement('text', 'custom_timelimit', get_string('custom_timelimit', 'lesson'), ['size' => '8']);
+        $mform->setType('custom_timelimit', PARAM_INT); // Ensures it is stored as an integer
+        $mform->addRule('custom_timelimit', null, 'numeric', null, 'client'); // Forces numeric input
+        $mform->addHelpButton('custom_timelimit', 'custom_timelimit', 'lesson'); // Adds a help button
+
+
         $mform->addElement('selectyesno', 'usepassword', get_string('usepassword', 'lesson'));
         $mform->addHelpButton('usepassword', 'usepassword', 'lesson');
         $mform->setDefault('usepassword', $lessonconfig->password);

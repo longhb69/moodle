@@ -32,15 +32,17 @@ function get_attendance_data($userid) {
         'Thursday' => 'T5',
         'Friday' => 'T6',
         'Saturday' => 'T7',
-        'Sunday' => 'CN'
+        'Sunday' => 'CN',
+        
     ];
 
+    $formatter = new IntlDateFormatter('vi_VN', IntlDateFormatter::FULL, IntlDateFormatter::NONE);
     foreach ($records as $record) {
-        $login_day_name = strftime('%A', $record->login);
-        $logout_day_name = strftime('%A', $record->logout);
+        $login_day_name = $formatter->format($record->login);
+        $logout_day_name = $formatter->format($record->logout);
         $login_day_short = $weekdays[$login_day_name] ?? $login_day_name;
         $logout_day_short = $weekdays[$logout_day_name] ?? $logout_day_name;
-        $login = $login_day_short . ', ' . userdate($record->login, '%d/%m/%Y, %I:%M%p');
+        $login = $login_day_name . ', ' . userdate($record->login, '%d/%m/%Y, %I:%M%p');
         $logout = $logout_day_short . ', ' . userdate($record->logout, '%d/%m/%Y, %I:%M%p');
 
         $attendance[] = [

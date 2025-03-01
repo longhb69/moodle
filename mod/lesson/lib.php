@@ -1792,17 +1792,31 @@ function track_lesson_end($lessonid, $userid, $logout) {
 
     // Update the record
     $record->logout = $logout; 
-    
-    $record->timespent = max(0, $record->logout - $record->login);
+    $timespent = max(0, $record->logout - $record->login);
+    $record->timespent = $timespent;
 
     $success = $DB->update_record('lesson_time_tracking', $record);
+    if ($success) 
+    {
+        $date = date('Y-d-m');
+        $sql = "INSERT INTO {user_time_per_day} (userid, date, time)
+            VALUES (:userid, :date, :time)
+            ON CONFLICT (userid, date) 
+            DO UPDATE SET time = {user_time_per_day}.time + EXCLUDED.time";
 
-    if (!$success) {
+        $params = [
+            'userid' => $userid,
+            'date' => $date,
+            'time' => $timespent
+        ];
+        $DB->execute($sql, $params);
+    }  
+    else 
+    {
         error_log("Database update failed for lessonid: $lessonid, userid: $userid");
         return false;
     }
 
     error_log("Lesson end successfully tracked for lessonid: $lessonid, userid: $userid");
     return true;
-
 }

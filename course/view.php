@@ -305,6 +305,8 @@ if (!empty($bulkbutton)) {
 
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
+echo render_course_progression();
+
 
 // Show communication room status notification.
 if (has_capability('moodle/course:update', $context)) {

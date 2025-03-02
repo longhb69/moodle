@@ -1,0 +1,55 @@
+.lesson-timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lesson-timer {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #ffffff;
+    background: #007bff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lesson-loading {
+    font-size: 18px;
+    color: gray;
+    animation: blink 1s infinite;
+    text-align: center;
+
+}
+
+/* Blinking effect */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+
+.lesson-timer.loading {
+    animation: pulse 1s infinite alternate;
+    opacity: 0.6;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* Fade in animation when lesson time appears */
+.lesson-timer.loaded {
+    animation: fadeIn 0.5s ease-in-out;
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}

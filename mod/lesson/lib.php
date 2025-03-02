@@ -1820,3 +1820,30 @@ function track_lesson_end($lessonid, $userid, $logout) {
     error_log("Lesson end successfully tracked for lessonid: $lessonid, userid: $userid");
     return true;
 }
+
+function get_lesson_time_for_this_user($lessonid, $courseid) {
+    global $DB, $USER;
+    $userid = $USER->id;
+
+    $sql = "SELECT courseid, lessonid, SUM(timespent) as time_already_spent
+                FROM {lesson_time_tracking}
+                WHERE userid = :userid AND lessonid = :lessonid AND courseid = :courseid
+                GROUP BY courseid, lessonid";
+    
+    $params = [
+        'userid'=> $userid,
+        'lessonid' => $lessonid,
+        'courseid' => $courseid
+    ];
+
+    $ltt_record = $DB->get_record_sql($sql, $params);
+    $lesson_record = $DB->get_record('lesson', ['id' => $lessonid], 'lessontime');
+
+    if ($lesson_record && isset($lesson_record->lessontime)) {
+        $time_already_spent = $ltt_record ? (int) $ltt_record->time_already_spent : 0; //check if ltt_record exits
+        $time_remain = max(0, (int) $lesson_record->lessontime - $time_already_spent);
+        return $time_remain;
+    } else {
+        return 0; 
+    }
+}

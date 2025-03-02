@@ -1,28 +1,76 @@
-document.addEventListener("DOMContentLoaded", function () {
-    let n = 10;
+document.addEventListener("DOMContentLoaded", async function () {
     const timerElement = document.getElementById("lesson-timer");
+    const loadingElement = document.querySelector(".lesson-loading");
 
     function updateTimerDisplay(seconds) {
+        const hours = Math.floor(seconds/3600);
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
-        timerElement.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        timerElement.textContent = `${hours}:${minutes.toString().padStart(2,'0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
-    updateTimerDisplay(n); // Initialize display
+    function startTimer(lesson_time) {
+        updateTimerDisplay(lesson_time)
 
-     setTimeout(() => { // Small delay to prevent Moodle's caching issues
-        const countdown = setInterval(() => {
-            if (n <= 0) {
-                clearInterval(countdown);
-                const logoutTime = Math.floor(Date.now() / 1000);
-                handleExit(logoutTime);
-                return;
-            }
-            n--;
-            updateTimerDisplay(n);
-        }, 1000);
-    }, 0); // Start immediately
+        setTimeout(() => {
+            const countdown = setInterval(() => {
+                if(lesson_time <= 0) {
+                    console.log("Finish");
+                    clearInterval(countdown);
+                    return;
+                }
+                lesson_time --;
+                updateTimerDisplay(lesson_time);
+            }, 1000);
+        })
+    }
+
+    async function getLessonTime() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => { 
+                const id = getIdFromUrl();
+                if(!id) {
+                    console.log("ID not found in URL!");
+                    reject("cmid not found");
+                    return;
+                }
+                require(['jquery'], function($) {
+                    $.ajax({
+                        url: 'http://localhost/moodle/mod/lesson/ajax.php',
+                        data: { cmid: id, action: 'get_lesson_time'},
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log("AJAX Response: ", response);
+                            if(response.status === 'success' && response.lesson_time != null) {
+                                resolve(parseInt(response.lesson_time, 10));
+                            }
+                            else {
+                                reject("cannot get lesson time");
+                            }
+                        },
+                        error: function () {
+                            reject("AJAX request failed");
+                        }
+                    });
+                });
+            }, 3000);
+        })
+    }
+
+    try {
+        const lessonTime = await getLessonTime();
+        if(lessonTime > 0) {
+            loadingElement.style.display = "none";
+            timerElement.style.display = "block";
+            startTimer(lessonTime)
+        }
+    } catch(error) {
+        console.error("Error fetching lesson time:", error);
+    }
 });
+
+
 
 function getIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -31,7 +79,7 @@ function getIdFromUrl() {
 
 function handleExit(logoutTime) {
     const id = getIdFromUrl();
-     console.log(logoutTime)
+     onsole.log(logoutTime)
     console.log(id)
      if (!id) {
         console.error("ID not found in URL!");

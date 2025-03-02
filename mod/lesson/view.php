@@ -28,6 +28,7 @@ define('NO_OUTPUT_BUFFERING', true);
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot.'/mod/lesson/locallib.php');
 require_once($CFG->libdir . '/grade/constants.php');
+$PAGE->requires->css(new moodle_url('/mod/lesson/custom.css'));
 
 $id      = required_param('id', PARAM_INT);             // Course Module ID
 $pageid  = optional_param('pageid', null, PARAM_INT);   // Lesson Page ID

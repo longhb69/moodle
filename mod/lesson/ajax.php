@@ -36,6 +36,13 @@ if($_SERVER['REQUEST_METHOD'] === 'GET') {
     die();
 }
 
+if($_SERVER['REQUEST_METHOD' === 'POST']) {
+    switch($action) {
+        default:
+            echo json_decode(['status' => 'failed', 'error' => "Invalid action ($action)"]);
+    }
+}
+
 $success = track_lesson_end($lessonid, $userid, $logout);
 
 if($success) {

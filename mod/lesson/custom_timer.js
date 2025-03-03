@@ -79,7 +79,7 @@ function getIdFromUrl() {
 
 function handleExit(logoutTime) {
     const id = getIdFromUrl();
-     onsole.log(logoutTime)
+    console.log(logoutTime)
     console.log(id)
      if (!id) {
         console.error("ID not found in URL!");

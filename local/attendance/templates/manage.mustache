@@ -2,19 +2,35 @@
 
 <h2 class="text-center">Attendance List</h2>
 
+<div class="d-flex justify-content-center align-items-center mt-3">
+    <a href="?page={{page-1}}&order={{order}}" class="btn btn-sm btn-outline-primary">&lt;</a>
+    <span class="mx-3">{{page}} / {{total_pages}}</span>
+    <a href="?page={{page+1}}&order={{order}}" class="btn btn-sm btn-outline-primary">&gt;</a>
+</div>
+
 <table class="table table-bordered table-striped table-sm table-hover">
     <thead class="thead-dark">
         <tr>
             <th>User</th>
-            <th>Login Time</th>
-            <th>Logout Time</th>
+            <th class="login-header">
+                <a href="?order={{order}}" class="text-decoration-none text-white full-width-link">
+                    Login Time
+                    {{#ASC}}
+                        <i class="fa-solid fa-arrow-down sort-icon ml-3"></i>
+                    {{/ASC}}
+                    {{#DESC}}
+                        <i class="fa-solid fa-arrow-up sort-icon ml-3"></i>
+                    {{/DESC}}
+                </a>
+            </th>
+            <th class="header">Logout Time</th>
             <th>Class</th>
             <th>Course</th>
             <th>Lesson</th>
             <th class="text-end px-3">Time Spent (seconds)</th>
         </tr>
     </thead>
-    <tbody class="fs-6">
+    <tbody id="attendanceBody" class="fs-3">
         {{#attendance}}
         <tr class="cursor-pointer">
             <td>{{username}}</td>
@@ -28,8 +44,55 @@
         {{/attendance}}
         {{^attendance}}
         <tr>
-            <td colspan="7" class="text-center">No attendance data found.</td>
+            <td colspan="7" class="text-center p-5">Không có bản ghi điểm danh.</td>
         </tr>
         {{/attendance}}
     </tbody>
 </table>
+
+<script>
+   
+</script>
+
+<style>
+    th {
+        position: relative; /* Needed for absolute positioning */
+    }
+
+    .full-width-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;  /* Center vertically */
+        justify-content: center; /* Center horizontally */
+        text-decoration: none;
+        color: inherit;
+        transition: color 0.3s ease;
+    }
+    .header {
+        
+    }
+    .full-width-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .sort-icon {
+        opacity: 0; /* Hide icon by default */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(5px); /* Move icon down slightly */
+    }
+
+    .full-width-link:hover .sort-icon {
+        opacity: 1; /* Show icon on hover */
+        transform: translateY(0); /* Move icon up smoothly */
+    }
+    .login-header {
+        box-sizing: border-box; /* Ensures border doesn't affect width */
+    }
+    .login-header:hover {
+        border-right: 2px solid white !important;
+        transition: border-right 0.1s ease;
+    }
+</style>

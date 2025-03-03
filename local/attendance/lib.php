@@ -7,18 +7,34 @@ function local_myplugin_extend_navigation(global_navigation $nav) {
     $PAGE->requires->css('/local/attendance/styles.css'); // Load custom CSS
 }
 
-function get_attendance_data($userid) {
+function get_attendance_data($userid, $order = 'DESC', $page) {
     global $DB;
+    $limit = 10;
+    $offset = ($page - 1) * $limit;
+
+    $order = strtoupper($order);
+    $order = in_array($order, ['ASC', 'DESC']) ? $order : 'ASC'; 
+
     $sql = "SELECT ltt.id, userid, login, logout, classid, c.fullname as coursename, l.name as lessonname, timespent
                 FROM {lesson_time_tracking} ltt
                 JOIN {lesson} l
                 ON ltt.lessonid = l.id
                 JOIN {course} c
                 ON ltt.courseid = c.id
-                Where userid = :userid"
+                Where userid = :userid
+                ORDER BY login $order
+                LIMIT $limit OFFSET $offset"
             ;
     $params = ['userid' => $userid];
     $records = $DB->get_records_sql($sql, $params);
+
+    $total_records = $DB->count_records_sql(
+        "SELECT COUNT(*) FROM {lesson_time_tracking} WHERE userid = :userid",
+        ['userid' => $userid]
+    );
+
+    $total_pages = ceil($total_records / $limit);
+
     $attendance = [];
 
     if(empty($records)) {
@@ -39,11 +55,17 @@ function get_attendance_data($userid) {
     $formatter = new IntlDateFormatter('vi_VN', IntlDateFormatter::FULL, IntlDateFormatter::NONE);
     foreach ($records as $record) {
         $login_day_name = $formatter->format($record->login);
-        $logout_day_name = $formatter->format($record->logout);
         $login_day_short = $weekdays[$login_day_name] ?? $login_day_name;
-        $logout_day_short = $weekdays[$logout_day_name] ?? $logout_day_name;
         $login = $login_day_name . ', ' . userdate($record->login, '%d/%m/%Y, %I:%M%p');
-        $logout = $logout_day_short . ', ' . userdate($record->logout, '%d/%m/%Y, %I:%M%p');
+
+        if($record->logout === NULL) {
+            $logout = '';
+        }
+        else {
+            $logout_day_name = $formatter->format($record->logout);
+            $logout_day_short = $weekdays[$logout_day_name] ?? $logout_day_name;
+            $logout = $logout_day_short . ', ' . userdate($record->logout, '%d/%m/%Y, %I:%M%p');
+        }
 
         $attendance[] = [
             'userid' => $record->userid,
@@ -56,5 +78,8 @@ function get_attendance_data($userid) {
         ];
     }
 
-    return $attendance;
+    return [
+        'attendance' => $attendance,
+        'total_pages' => $total_pages
+    ];
 }

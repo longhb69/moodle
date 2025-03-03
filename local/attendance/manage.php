@@ -13,12 +13,27 @@ require_login();
 global $USER;
 $userid = $USER->id;
 
+$order = optional_param('order', 'DESC', PARAM_ALPHA);
+$page = optional_param('page', 1,PARAM_INT);
+
+//$new_order = ($order === 'DESC') ? 'ASC' : 'DESC';
+
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+$attendance_data = get_attendance_data($userid, $order, $page);
 
 $data = [
     'userid' => $userid, 
     'username' => fullname($USER),
-    'attendance' => get_attendance_data($userid)
+    'attendance' => $attendance_data['attendance'], 
+    'total_pages' => $attendance_data['total_pages'], 
+    'page' => $page ? $page : 1,
+    'order' => $order,
+    'ASC' => $order == 'ASC',
+    'DESC' => $order == 'DESC'
 ];
+
 
 
 echo $OUTPUT->header();

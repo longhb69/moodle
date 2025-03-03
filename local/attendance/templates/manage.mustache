@@ -3,52 +3,53 @@
 <h2 class="text-center">Attendance List</h2>
 
 <div class="d-flex justify-content-center align-items-center mt-3">
-    <a href="?page={{page-1}}&order={{order}}" class="btn btn-sm btn-outline-primary">&lt;</a>
+    <button class="btn btn-sm btn-outline-primary">&lt;</button>
     <span class="mx-3">{{page}} / {{total_pages}}</span>
-    <a href="?page={{page+1}}&order={{order}}" class="btn btn-sm btn-outline-primary">&gt;</a>
+    <button class="btn btn-sm btn-outline-primary">&gt;</button>
 </div>
-
-<table class="table table-bordered table-striped table-sm table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th>User</th>
-            <th class="login-header">
-                <a href="?order={{order}}" class="text-decoration-none text-white full-width-link">
-                    Login Time
-                    {{#ASC}}
-                        <i class="fa-solid fa-arrow-down sort-icon ml-3"></i>
-                    {{/ASC}}
-                    {{#DESC}}
-                        <i class="fa-solid fa-arrow-up sort-icon ml-3"></i>
-                    {{/DESC}}
-                </a>
-            </th>
-            <th class="header">Logout Time</th>
-            <th>Class</th>
-            <th>Course</th>
-            <th>Lesson</th>
-            <th class="text-end px-3">Time Spent (seconds)</th>
-        </tr>
-    </thead>
-    <tbody id="attendanceBody" class="fs-3">
-        {{#attendance}}
-        <tr class="cursor-pointer">
-            <td>{{username}}</td>
-            <td>{{login}}</td>
-            <td>{{logout}}</td>
-            <td>{{classid}}</td>
-            <td>{{coursename}}</td>
-            <td>{{lessonname}}</td>
-            <td class="text-end px-3">{{timespent}}</td>
-        </tr>
-        {{/attendance}}
-        {{^attendance}}
-        <tr>
-            <td colspan="7" class="text-center p-5">Không có bản ghi điểm danh.</td>
-        </tr>
-        {{/attendance}}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-sm table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th class="login-header">
+                    <a href="?order={{order}}&page={{page}}&change=true"  class="text-decoration-none text-white full-width-link">
+                        Login Time
+                        {{#ASC}}
+                            <i class="fa-solid fa-arrow-down sort-icon ml-3"></i>
+                        {{/ASC}}
+                        {{#DESC}}
+                            <i class="fa-solid fa-arrow-up sort-icon ml-3"></i>
+                        {{/DESC}}
+                    </a>
+                </th>
+                <th class="header">Logout Time</th>
+                <th>Class</th>
+                <th>Course</th>
+                <th>Lesson</th>
+                <th class="text-end px-3">Time Spent (seconds)</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceBody" class="fs-3">
+            {{#attendance}}
+            <tr class="cursor-pointer">
+                <td>{{username}}</td>
+                <td>{{login}}</td>
+                <td>{{logout}}</td>
+                <td>{{classid}}</td>
+                <td>{{coursename}}</td>
+                <td>{{lessonname}}</td>
+                <td class="text-end px-3">{{timespent}}</td>
+            </tr>
+            {{/attendance}}
+            {{^attendance}}
+            <tr>
+                <td colspan="7" class="text-center p-5">Không có bản ghi điểm danh.</td>
+            </tr>
+            {{/attendance}}
+        </tbody>
+    </table>
+</div>
 
 <script>
    

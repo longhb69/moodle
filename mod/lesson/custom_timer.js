@@ -54,13 +54,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                         }
                     });
                 });
-            }, 3000);
+            }, 0);
         })
     }
 
     try {
         const lessonTime = await getLessonTime();
-        if(lessonTime > 0) {
+        if(lessonTime >= 0) {
             loadingElement.style.display = "none";
             timerElement.style.display = "block";
             startTimer(lessonTime)

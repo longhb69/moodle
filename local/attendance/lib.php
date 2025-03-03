@@ -7,13 +7,8 @@ function local_myplugin_extend_navigation(global_navigation $nav) {
     $PAGE->requires->css('/local/attendance/styles.css'); // Load custom CSS
 }
 
-function get_attendance_data($userid, $order = 'DESC', $page) {
+function get_attendance_data($userid) {
     global $DB;
-    $limit = 10;
-    $offset = ($page - 1) * $limit;
-
-    $order = strtoupper($order);
-    $order = in_array($order, ['ASC', 'DESC']) ? $order : 'ASC'; 
 
     $sql = "SELECT ltt.id, userid, login, logout, classid, c.fullname as coursename, l.name as lessonname, timespent
                 FROM {lesson_time_tracking} ltt
@@ -21,9 +16,7 @@ function get_attendance_data($userid, $order = 'DESC', $page) {
                 ON ltt.lessonid = l.id
                 JOIN {course} c
                 ON ltt.courseid = c.id
-                Where userid = :userid
-                ORDER BY login $order
-                LIMIT $limit OFFSET $offset"
+                Where userid = :userid"
             ;
     $params = ['userid' => $userid];
     $records = $DB->get_records_sql($sql, $params);
@@ -32,8 +25,6 @@ function get_attendance_data($userid, $order = 'DESC', $page) {
         "SELECT COUNT(*) FROM {lesson_time_tracking} WHERE userid = :userid",
         ['userid' => $userid]
     );
-
-    $total_pages = ceil($total_records / $limit);
 
     $attendance = [];
 

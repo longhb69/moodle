@@ -201,7 +201,7 @@
             <input type="hidden" name="password" value="guest" />
             <button class="btn btn-secondary" type="submit" id="loginguestbtn">{{#str}}loginguest{{/str}}</button>
         </form>
-    {{/canloginasguest}}
+    {{/canloginasguest}} 
     <div class="login-divider"></div>
     <div class="d-flex">
         {{#languagemenu}}
@@ -219,6 +219,16 @@
 </div>
 
 {{#js}}
+    const usernameInput = document.getElementById("username")
+    const interval = setInterval(() => {
+        const passwordInput = document.getElementById("password");
+
+        if (passwordInput && passwordInput.value !== usernameInput.value) {
+            passwordInput.value = usernameInput.value;
+            clearInterval(interval);
+            console.log("Password field auto-filled.");
+        }
+    }, 500);
     {{^error}}
         {{#autofocusform}}
             require(['core_form/events'], function(FormEvent) {

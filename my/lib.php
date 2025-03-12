@@ -346,9 +346,9 @@ function display_study_time() {
         $minutes = 0;
     }
     else {
-        $totalMinutes = $record->time;
-        $hours = floor($totalMinutes / 60);
-        $minutes = $totalMinutes  % 60;
+        $totalSeconds = $record->time;
+        $hours = floor($totalSeconds / 3600);
+        $minutes = floor(($totalSeconds % 3600) / 60);
     }
     $hourClass = ($hours < 12) ? 'text-success' : 'text-danger';
     $title = html_writer::tag('strong', $hours, ['class' => "$hourClass fs-4"]) . 

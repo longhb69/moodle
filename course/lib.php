@@ -4835,14 +4835,11 @@ function course_section_view(context_course $context, int $sectionid) {
     user_accesstime_log($context->instanceid);
 }
 
-function render_course_progression() {
-    global $DB;
+function get_course_user_data($courseid) {
     global $USER;
-    global $COURSE;
+    global $DB;
 
-    $userid = $USER->id;    
-    $courseid = $COURSE->id;
-
+    $userid = $USER->id; 
     $ltt_sql = "SELECT userid, courseid, SUM(timespent) AS total_timespent
                 FROM {lesson_time_tracking}
                 WHERE courseid = :courseid and userid = :userid
@@ -4859,20 +4856,81 @@ function render_course_progression() {
     ];
 
     $ltt_record = $DB->get_record_sql($ltt_sql, $ltt_sql_params);
-    $timetocomplete = $DB->get_record_sql($utpd_sql, $utpd_sql_params)->timetocomplete;
+    $course_record = $DB->get_record_sql($utpd_sql, $utpd_sql_params);
 
-    if($ltt_record && $ltt_record->total_timespent !== null) {
-        $message = html_writer::div(
-            html_writer::div(
-                "✅ Bạn đã hoàn thành khóa học ($ltt_record->total_timespent) : khoa hoc co ($timetocomplete) phut",
-                'fw-bold fs-3 px-3 py-1 rounded text-white bg-success'
-            ),
-            'text-center rounded bg-light text-white'
-        );
-    
-        return $message;
-    } else {
-        return "No records found.";
+    $total_time_spent = $ltt_record ? (int) $ltt_record->total_timespent : 0;
+    $time_to_complete = $course_record ? (int) $course_record->timetocomplete : 0;
+
+    $progress = ($time_to_complete > 0) ? min(100, ($total_time_spent/$time_to_complete) * 100) : 0;
+    $progress = round($progress, 1);
+    $hours = floor($total_time_spent / 3600);
+    $minutes = floor(($total_time_spent % 3600) / 60);
+
+    return (object) [
+        'total_time_spent' => $total_time_spent,
+        'time_to_complete' => $time_to_complete,
+        'progress' => $progress,
+        'hours' => $hours,
+        'minutes' => $minutes
+    ];
+}
+
+function render_course_progression() {
+    global $COURSE;
+
+    $courseid = $COURSE->id;
+
+    $data = get_course_user_data($courseid, $userid);
+
+    // Build the display text
+    $time_display = "";
+    if ($data->hours > 0) {
+        $time_display .= "$data->hours giờ ";
     }
+    if ($data->minutes > 0 || $data->hours == 0) { // Always show minutes if no hours
+        $time_display .= "$data->minutes phút";
+    }
+
+    if($data->progress == 100) {
+        $progress_display =  html_writer::tag(
+            'span',
+            html_writer::tag('i', '', ['class' => 'fa fa-check']) . ' Đã hoàn thành',
+            [
+                'class' => 'rounded-pill text-bg-success py-2 px-3 my-3',
+                'style' => 'background-color: #01FE00; color: #121212; font-weight: bold; display: block; text-align: left; width: fit-content; margin: 0 0; padding: 10px 20px;'
+            ]
+        );
+    }
+    else {
+        $progress_display = html_writer::div(
+            html_writer::div(
+                html_writer::div("$data->progress%", 
+                    null,
+                    ['class' => 'progress-bar bg-info fw-bold fs-3', 'role' => 'progressbar', 'style' => "width: $data->progress%;"]
+                ),
+                null,
+                ['class' => 'progress', 'style' => 'height: 20px']
+            ),
+            null,
+            ['class' => 'my-3']
+        );
+    }
+
+    $time_spent_display = html_writer::div(
+        "<span style='color: #121212; font-size: 18px; font-weight: bold;'>Thời gian đã học: $time_display</span>",
+        null,
+        ['class' => 'my-2']
+    );
+
+    $message = html_writer::div(
+        html_writer::div(
+            "✅ Bạn đã hoàn thành khóa học ($data->total_time_spent) : khoa hoc co ($data->time_to_complete) phut",
+            'fw-bold fs-3 px-3 py-1 rounded text-white bg-success'
+        ),
+        'text-center rounded bg-light text-white'
+    );
+    
+    
+    return $progress_display .$time_spent_display . $message;
 }
 

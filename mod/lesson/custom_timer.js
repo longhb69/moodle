@@ -4,24 +4,45 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function updateTimerDisplay(seconds) {
         const hours = Math.floor(seconds/3600);
-        const minutes = Math.floor(seconds / 60);
+        const minutes = Math.floor( (seconds % 3600) / 60);
         const remainingSeconds = seconds % 60;
         timerElement.textContent = `${hours}:${minutes.toString().padStart(2,'0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
     function startTimer(lesson_time) {
-        updateTimerDisplay(lesson_time)
+        let remainingTime = lesson_time;
+        let lastPauseTime = Date.now()
+        let countdownActive = true
 
-        setTimeout(() => {
-            const countdown = setInterval(() => {
-                if(lesson_time <= 0) {
-                    console.log("Finish");
-                    clearInterval(countdown);
-                    return;
-                }
-                lesson_time --;
-                updateTimerDisplay(lesson_time);
-            }, 1000);
+        function update() {
+            if(!countdownActive) return;
+
+            const elapsedTime = Math.floor((Date.now() - lastPauseTime) / 1000);
+            remainingTime = Math.max(0, lesson_time - elapsedTime)
+            updateTimerDisplay(remainingTime)
+
+            if(remainingTime > 0) {
+                requestAnimationFrame(update)
+            } else {
+                console.log('Finish')
+                handleExit()
+            }
+        }
+
+        update()
+
+        document.addEventListener('visibilitychange', function handleVisibility() {
+            if(document.hidden) {
+                countdownActive = false;
+                lastPauseTime = Date.now()
+                console.log("Paused");
+            } else {
+                countdownActive = true;
+                lesson_time = remainingTime //Reset to reaming time
+                lastPauseTime = Date.now();
+                console.log("Resumed");
+                update(); // Restart the timer
+            }
         })
     }
 
@@ -58,7 +79,28 @@ document.addEventListener("DOMContentLoaded", async function () {
         })
     }
 
+    async function startLesson() {
+        const id = getIdFromUrl();
+        require(['jquery'], function($) {
+            $.ajax({
+                url: 'http://localhost/moodle/mod/lesson/ajax.php',
+                data: { cmid: id, action: 'start_lesson_time'},
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status === 'success' ) {
+                        console.log("Begin track lesson")
+                    }
+                },
+                error: function () {
+                    reject("AJAX request failed");
+                }
+            });
+        });
+    }
+
     try {
+        await startLesson();
         const lessonTime = await getLessonTime();
         if(lessonTime >= 0) {
             loadingElement.style.display = "none";
@@ -68,6 +110,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch(error) {
         console.error("Error fetching lesson time:", error);
     }
+
+    window.addEventListener("beforeunload", function (event) {
+        handleExit();
+    });
 });
 
 
@@ -77,11 +123,10 @@ function getIdFromUrl() {
     return urlParams.get('id'); 
 }
 
-function handleExit(logoutTime) {
+//don't use logouttime
+function handleExit() {
     const id = getIdFromUrl();
-    console.log(logoutTime)
-    console.log(id)
-     if (!id) {
+    if (!id) {
         console.error("ID not found in URL!");
         return;
     }
@@ -91,12 +136,14 @@ function handleExit(logoutTime) {
             url: 'http://localhost/moodle/mod/lesson/ajax.php',
             data: { 
                 cmid: id,
-                logout: logoutTime
+                action: 'user_finish_lesson'
             },
             type: 'POST',
             dataType: 'json',
             success: function(response) {
-                console.log("AJAX Success:", response);
+                if(response.status === 'success') {
+                    console.log("AJAX Success:");
+                }
                 if (response.status !== 'success') {
                     console.error("Database update failed!", response);
                 }

@@ -1753,6 +1753,7 @@ function mod_lesson_core_calendar_get_event_action_string(string $eventtype): st
 }
 
 function track_lesson_start($lessonid, $courseid, $classid, $userid) {
+    //if user have the session with login time the next day they com back finish it can it can have logout of 24h
     global $DB;
 
     $record = $DB->get_record('lesson_time_tracking', [
@@ -1776,7 +1777,7 @@ function track_lesson_start($lessonid, $courseid, $classid, $userid) {
     $DB -> insert_record('lesson_time_tracking', $newRecord);
 }
 
-function track_lesson_end($lessonid, $userid, $logout) {
+function track_lesson_end($lessonid, $userid) {
     global $DB;
 
     $record = $DB->get_record('lesson_time_tracking', [
@@ -1791,7 +1792,7 @@ function track_lesson_end($lessonid, $userid, $logout) {
     }
 
     // Update the record
-    $record->logout = $logout; 
+    $record->logout = time(); 
     $timespent = max(0, $record->logout - $record->login);
     $record->timespent = $timespent;
 
@@ -1825,10 +1826,12 @@ function get_lesson_time_for_this_user($lessonid, $courseid) {
     global $DB, $USER;
     $userid = $USER->id;
 
-    $sql = "SELECT courseid, lessonid, SUM(timespent) as time_already_spent
+    $ltt_sql = "SELECT courseid, lessonid, SUM(timespent) as time_already_spent
                 FROM {lesson_time_tracking}
                 WHERE userid = :userid AND lessonid = :lessonid AND courseid = :courseid
                 GROUP BY courseid, lessonid";
+    
+    $l_sql = "SELECT lessontime FROM {lesson} WHERE id = :lessonid AND course = :courseid";
     
     $params = [
         'userid'=> $userid,
@@ -1836,13 +1839,13 @@ function get_lesson_time_for_this_user($lessonid, $courseid) {
         'courseid' => $courseid
     ];
 
-    $ltt_record = $DB->get_record_sql($sql, $params);
-    $lesson_record = $DB->get_record('lesson', ['id' => $lessonid], 'lessontime');
+    $ltt_record = $DB->get_record_sql($ltt_sql, $params);
+    $lesson_record = $DB->get_record_sql($l_sql, $params);
 
-    if ($lesson_record && isset($lesson_record->lessontime)) {
+    if ($lesson_record && isset($lesson_record)) {
         $time_already_spent = $ltt_record ? (int) $ltt_record->time_already_spent : 0; //check if ltt_record exits
         $time_remain = max(0, (int) $lesson_record->lessontime - $time_already_spent);
-        return $time_remain;
+        return $lesson_record->lessontime;
     } else {
         return 0; 
     }

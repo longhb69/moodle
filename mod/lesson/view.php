@@ -42,7 +42,7 @@ $lesson = new lesson($DB->get_record('lesson', array('id' => $cm->instance), '*'
 
 require_login($course, false, $cm);
 
-track_lesson_start($lesson->id, $lesson->course, 1, $USER->id);
+//track_lesson_start($lesson->id, $lesson->course, 1, $USER->id);
 
 if ($backtocourse) {
     redirect(new moodle_url('/course/view.php', array('id'=>$course->id)));
